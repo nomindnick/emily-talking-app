@@ -26,7 +26,13 @@ def index():
     """Display the main dashboard."""
     word_count = Word.query.count()
     categories = Category.query.all()
-    return render_template("index.html", word_count=word_count, categories=categories)
+    recent_words = Word.query.order_by(Word.date_added.desc()).limit(5).all()
+    return render_template(
+        "index.html",
+        word_count=word_count,
+        categories=categories,
+        recent_words=recent_words,
+    )
 
 
 @main_bp.route("/words")

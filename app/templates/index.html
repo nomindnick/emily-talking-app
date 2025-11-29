@@ -2,116 +2,6 @@
 
 {% block title %}Dashboard - Emily Word Tracker{% endblock %}
 
-{% block head %}
-<style>
-    .word-count-display {
-        text-align: center;
-        margin-bottom: 30px;
-        padding: 20px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-    }
-
-    .word-count-number {
-        font-size: 48px;
-        font-weight: bold;
-        color: #007bff;
-    }
-
-    .word-count-label {
-        color: #6c757d;
-        font-size: 16px;
-    }
-
-    .word-entry-section {
-        background-color: white;
-        padding: 24px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-    }
-
-    .word-entry-section h2 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        font-size: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 16px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 500;
-    }
-
-    .form-input {
-        width: 100%;
-        padding: 14px 16px;
-        font-size: 18px;
-        border: 2px solid #dee2e6;
-        border-radius: 8px;
-        min-height: 50px;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: #007bff;
-    }
-
-    .form-select {
-        width: 100%;
-        padding: 14px 16px;
-        font-size: 16px;
-        border: 2px solid #dee2e6;
-        border-radius: 8px;
-        background-color: white;
-        min-height: 50px;
-    }
-
-    .form-select:focus {
-        outline: none;
-        border-color: #007bff;
-    }
-
-    .btn-add-word {
-        width: 100%;
-        padding: 16px;
-        font-size: 18px;
-        font-weight: 600;
-        color: white;
-        background-color: #28a745;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        min-height: 54px;
-    }
-
-    .btn-add-word:hover {
-        background-color: #218838;
-    }
-
-    .btn-add-word:active {
-        background-color: #1e7e34;
-    }
-
-    .view-words-link {
-        display: block;
-        text-align: center;
-        margin-top: 20px;
-        color: #007bff;
-        text-decoration: none;
-        font-size: 16px;
-        padding: 12px;
-    }
-
-    .view-words-link:hover {
-        text-decoration: underline;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="word-count-display">
@@ -149,4 +39,18 @@
 </div>
 
 <a href="{{ url_for('main.word_list') }}" class="view-words-link">View All Words</a>
+
+{% if recent_words %}
+<div class="recent-words-section">
+    <h3>Recently Added</h3>
+    <ul class="recent-words-list">
+        {% for word in recent_words %}
+        <li>
+            <span class="word">{{ word.word }}</span>
+            <span class="date">{{ word.date_added.strftime('%b %d') }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,19 @@
+/* Base Styles - Reset and Body */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    line-height: var(--line-height-base);
+    color: var(--color-gray-900);
+}
+
+.container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: var(--container-padding);
+}

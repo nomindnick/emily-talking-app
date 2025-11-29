@@ -1,0 +1,97 @@
+/* Design Tokens - CSS Custom Properties
+ * Single source of truth for design decisions
+ */
+
+:root {
+  /* Primary Colors */
+  --color-primary: #007bff;
+  --color-primary-hover: #0056b3;
+  --color-primary-active: #004494;
+  --color-primary-light: #e7f1ff;
+
+  /* Success Colors */
+  --color-success: #28a745;
+  --color-success-hover: #218838;
+  --color-success-active: #1e7e34;
+  --color-success-light: #d4edda;
+
+  /* Danger Colors */
+  --color-danger: #dc3545;
+  --color-danger-hover: #c82333;
+  --color-danger-light: #f8d7da;
+
+  /* Neutral Colors */
+  --color-gray-100: #f8f9fa;
+  --color-gray-200: #e9ecef;
+  --color-gray-300: #dee2e6;
+  --color-gray-500: #6c757d;
+  --color-gray-700: #495057;
+  --color-gray-900: #333333;
+  --color-white: #ffffff;
+
+  /* Flash Message Colors */
+  --flash-success-bg: #d4edda;
+  --flash-success-border: #c3e6cb;
+  --flash-success-text: #155724;
+
+  --flash-error-bg: #f8d7da;
+  --flash-error-border: #f5c6cb;
+  --flash-error-text: #721c24;
+
+  --flash-info-bg: #d1ecf1;
+  --flash-info-border: #bee5eb;
+  --flash-info-text: #0c5460;
+
+  /* Spacing Scale (4px base unit) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 32px;
+  --font-size-4xl: 48px;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+  /* Touch Target */
+  --touch-min: 44px;
+  --touch-large: 54px;
+
+  /* Container */
+  --container-max: 800px;
+  --container-padding: 20px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+}
