@@ -5,6 +5,7 @@
 This document breaks the project into focused sprints. **Complete one sprint at a time.** Each sprint should take roughly 1-2 hours and results in testable functionality.
 
 ### Sprint Completion Requirements
+
 1. Complete all tasks listed
 2. **Write all specified tests**
 3. **Run `pytest -v` and verify ALL tests pass**
@@ -13,6 +14,7 @@ This document breaks the project into focused sprints. **Complete one sprint at 
 6. Only then move to the next sprint
 
 ### Critical Rules
+
 - **Never mark a sprint complete without passing tests**
 - Keep code modular - this app will be heavily modified
 - Mobile-first: test at 375px viewport width
@@ -23,10 +25,13 @@ Reference `SPEC.md` for detailed requirements and schema definitions.
 ---
 
 ## Sprint 0: Project Setup
+
 **Goal**: Initialize project structure and dependencies
 
 ### Tasks
+
 1. Create project directory structure:
+   
    ```
    emily-word-tracker/
    ├── app/
@@ -48,6 +53,7 @@ Reference `SPEC.md` for detailed requirements and schema definitions.
    ```
 
 2. Create `requirements.txt` with:
+   
    - Flask
    - Flask-SQLAlchemy
    - Flask-Login
@@ -59,6 +65,7 @@ Reference `SPEC.md` for detailed requirements and schema definitions.
    - pytest-flask
 
 3. Create `config.py` with:
+   
    - Development and production config classes
    - Testing config class (uses SQLite in-memory for fast tests)
    - DATABASE_URL handling (parse Railway's PostgreSQL URL)
@@ -75,12 +82,14 @@ Reference `SPEC.md` for detailed requirements and schema definitions.
 8. Create `tests/conftest.py` with pytest fixtures for app and test client
 
 ### Deliverables
+
 - [ ] All files in directory structure exist
 - [ ] `pip install -r requirements.txt` succeeds
 - [ ] App runs with `python run.py` without errors
 - [ ] Root route returns 200 status
 
 ### Tests to Write and Pass
+
 ```python
 # tests/test_app.py
 def test_app_exists(app):
@@ -94,6 +103,7 @@ def test_app_runs(client):
 ```
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] All tests written and passing (`pytest` returns 0 failures)
 - [ ] Code runs without errors or warnings
@@ -101,34 +111,42 @@ def test_app_runs(client):
 ---
 
 ## Sprint 1: Database Models
+
 **Goal**: Define all database models with proper relationships
 
 ### Tasks
+
 1. In `app/models.py`, create SQLAlchemy models:
+   
    - User model (id, username, password_hash, display_name)
    - Category model (id, name, description)
    - Word model (id, word, date_added, user_id, category_id, created_at, updated_at)
 
 2. Set up proper foreign key relationships:
+   
    - Word.user_id → User.id
    - Word.category_id → Category.id (nullable)
 
 3. Add model methods:
+   
    - User: `set_password()`, `check_password()` using bcrypt
    - Word: `to_dict()` for easy serialization
 
 4. Create `app/init_db.py` script that:
+   
    - Creates all tables
-   - Seeds the two user accounts (Nick, Wife)
+   - Seeds the two user accounts (Nick, Wife) - display names are configurable via environment variables
    - Seeds default categories: "Noun", "Verb", "Animal Sound", "Person", "Other"
 
 ### Deliverables
+
 - [ ] All three models defined in models.py
 - [ ] Foreign key relationships work correctly
 - [ ] Password hashing methods functional
 - [ ] init_db.py creates tables and seeds data
 
 ### Tests to Write and Pass
+
 ```python
 # tests/test_models.py
 def test_user_password_hashing(app):
@@ -144,23 +162,24 @@ def test_word_user_relationship(app, db_session):
     user.set_password('test')
     db_session.add(user)
     db_session.commit()
-    
+
     word = Word(word='hello', user_id=user.id)
     db_session.add(word)
     db_session.commit()
-    
+
     assert word.user.username == 'test'
 
 def test_word_to_dict(app, db_session):
     """Word.to_dict() returns correct structure"""
     # Create word and verify to_dict has expected keys
-    
+
 def test_category_optional(app, db_session):
     """Word can be created without category"""
     # Verify nullable category works
 ```
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] All tests written and passing
 - [ ] Can run init_db.py and verify data in database
@@ -168,25 +187,31 @@ def test_category_optional(app, db_session):
 ---
 
 ## Sprint 2: Authentication
+
 **Goal**: Implement login/logout with Flask-Login
 
 ### Tasks
+
 1. In `app/auth.py`:
+   
    - Configure Flask-Login
    - Create login_required decorator usage
    - Create `load_user` function
 
 2. Create `app/templates/login.html`:
+   
    - Simple form: username dropdown (Nick/Wife), password field
    - Error message display
    - Mobile-friendly styling (large touch targets, readable text)
 
 3. In `app/routes.py`, create routes:
+   
    - `GET /login` - display login form
    - `POST /login` - authenticate and redirect
    - `GET /logout` - clear session and redirect to login
 
 4. Create `app/templates/base.html`:
+   
    - Basic HTML5 structure
    - Mobile viewport meta tag: `<meta name="viewport" content="width=device-width, initial-scale=1">`
    - Navigation with logout button (when logged in)
@@ -195,6 +220,7 @@ def test_category_optional(app, db_session):
    - Modular structure: use blocks for head, nav, content, scripts
 
 ### Deliverables
+
 - [ ] Login page renders correctly
 - [ ] Authentication validates password correctly
 - [ ] Session persists across requests
@@ -203,6 +229,7 @@ def test_category_optional(app, db_session):
 - [ ] Templates use inheritance from base.html
 
 ### Tests to Write and Pass
+
 ```python
 # tests/test_auth.py
 def test_login_page_loads(client):
@@ -243,6 +270,7 @@ def test_logout(authenticated_client):
 ```
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] All tests written and passing
 - [ ] Manual test: can log in, browse, log out in browser
@@ -250,10 +278,13 @@ def test_logout(authenticated_client):
 ---
 
 ## Sprint 3: Word Entry (Create)
+
 **Goal**: Implement adding new words with duplicate detection
 
 ### Tasks
+
 1. Create `app/templates/index.html` (dashboard):
+   
    - Word entry form (prominent, top of page)
    - Large input field for word (easy to tap on mobile)
    - Optional category dropdown
@@ -261,25 +292,30 @@ def test_logout(authenticated_client):
    - Display current total word count
 
 2. In `app/routes.py`, create routes:
+   
    - `GET /` - dashboard with word entry form
    - `POST /words/add` - handle new word submission
 
 3. Implement duplicate detection in `app/utils.py`:
+   
    - Case-insensitive check against existing words
    - Return existing word if duplicate found
    - Keep business logic separate from routes
 
 4. On successful add:
+   
    - Create Word record with current user and timestamp
    - Flash success message
    - Redirect back to dashboard
 
 5. On duplicate:
+   
    - Flash error message with the existing word shown
    - Do not add duplicate
    - Redirect back to dashboard
 
 ### Deliverables
+
 - [ ] Dashboard displays with word entry form
 - [ ] Word entry form is mobile-friendly (large inputs, touch targets)
 - [ ] New words save to database with correct user_id and timestamp
@@ -288,6 +324,7 @@ def test_logout(authenticated_client):
 - [ ] Flash messages display for success and error
 
 ### Tests to Write and Pass
+
 ```python
 # tests/test_words.py
 def test_add_word_success(authenticated_client, seeded_db):
@@ -338,6 +375,7 @@ def test_dashboard_shows_word_count(authenticated_client, seeded_db):
 ```
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] All tests written and passing
 - [ ] Manual test: add words on mobile viewport, verify UX
@@ -345,10 +383,13 @@ def test_dashboard_shows_word_count(authenticated_client, seeded_db):
 ---
 
 ## Sprint 4: Word List (Read)
+
 **Goal**: Display all words with sorting and filtering
 
 ### Tasks
+
 1. Create `app/templates/words.html`:
+   
    - Table/list of all words
    - Columns: Word, Date Added, Added By, Category, Actions
    - Sort controls (by word alphabetically, by date)
@@ -356,21 +397,25 @@ def test_dashboard_shows_word_count(authenticated_client, seeded_db):
    - Filter by user dropdown
 
 2. Create `app/templates/partials/word_list.html` (modular component):
+   
    - Reusable word list display
    - Can be included in other templates later
 
 3. Mobile-responsive design:
+   
    - Card layout on small screens (instead of table)
    - Touch-friendly sort/filter controls
    - Adequate spacing between items
 
 4. In `app/routes.py`:
+   
    - `GET /words` - display word list
    - Handle query parameters: `sort`, `order`, `category`, `user`
 
 5. Add navigation link to word list from dashboard
 
 ### Deliverables
+
 - [ ] Word list page displays all words
 - [ ] Sorting works (A-Z, Z-A, newest, oldest)
 - [ ] Filtering by category works
@@ -380,6 +425,7 @@ def test_dashboard_shows_word_count(authenticated_client, seeded_db):
 - [ ] Word list is a reusable partial template
 
 ### Tests to Write and Pass
+
 ```python
 # tests/test_word_list.py
 def test_word_list_displays(authenticated_client, seeded_db, sample_words):
@@ -412,6 +458,7 @@ def test_filter_by_user(authenticated_client, seeded_db, sample_words):
 ```
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] All tests written and passing
 - [ ] Manual test: verify mobile layout in browser dev tools
@@ -419,27 +466,33 @@ def test_filter_by_user(authenticated_client, seeded_db, sample_words):
 ---
 
 ## Sprint 5: Word Edit and Delete
+
 **Goal**: Implement updating and removing words
 
 ### Tasks
+
 1. Create `app/templates/edit_word.html`:
+   
    - Form pre-populated with word data
    - Fields: word text, category dropdown
    - Save and Cancel buttons (large, touch-friendly)
    - Delete button (visually distinct, requires confirmation)
 
 2. In `app/routes.py`:
+   
    - `GET /words/<id>/edit` - display edit form
    - `POST /words/<id>/edit` - save changes
    - `POST /words/<id>/delete` - delete word
 
 3. Edit functionality:
+   
    - Update word text (with duplicate check against OTHER words)
    - Update category
    - Update `updated_at` timestamp
    - Preserve original `date_added` and `user_id`
 
 4. Delete functionality:
+   
    - JavaScript confirmation dialog before delete
    - Flash success message after delete
    - Redirect to word list
@@ -447,6 +500,7 @@ def test_filter_by_user(authenticated_client, seeded_db, sample_words):
 5. Add Edit button to word list table/cards
 
 ### Deliverables
+
 - [ ] Edit form displays with pre-populated data
 - [ ] Can change word text (with duplicate validation)
 - [ ] Can change category
@@ -456,6 +510,7 @@ def test_filter_by_user(authenticated_client, seeded_db, sample_words):
 - [ ] Edit/Delete buttons visible in word list
 
 ### Tests to Write and Pass
+
 ```python
 # tests/test_word_edit.py
 def test_edit_form_loads(authenticated_client, seeded_db, sample_words):
@@ -504,6 +559,7 @@ def test_delete_word(authenticated_client, seeded_db, sample_words):
 ```
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] All tests written and passing
 - [ ] Manual test: edit and delete flow on mobile
@@ -511,10 +567,13 @@ def test_delete_word(authenticated_client, seeded_db, sample_words):
 ---
 
 ## Sprint 6: Basic Analytics
+
 **Goal**: Display word statistics and milestone comparison
 
 ### Tasks
+
 1. Create `app/templates/stats.html`:
+   
    - Total word count (large, prominent display)
    - Baby's current age (calculated from BABY_BIRTHDATE env var)
    - Milestone comparison section:
@@ -525,21 +584,25 @@ def test_delete_word(authenticated_client, seeded_db, sample_words):
      - Month/Year | Words Added | Running Total
 
 2. In `app/routes.py`:
+   
    - `GET /stats` - compile and display statistics
 
 3. Create `app/utils.py` helper functions (keep logic modular):
+   
    - `calculate_age_months(birthdate)` - baby's age in months
    - `get_milestone_for_age(months)` - return milestone data
    - `group_words_by_month(words)` - aggregate words by month
    - `get_monthly_stats()` - return list of {month, count, running_total}
 
 4. Create `app/milestones.py` - milestone reference data:
+   
    - Store CDC-based milestones as data structure
    - Function to look up expected range for age
 
 5. Add navigation link to stats page
 
 ### Deliverables
+
 - [ ] Stats page displays total word count prominently
 - [ ] Baby's age displays correctly
 - [ ] Milestone table shows all age ranges
@@ -549,6 +612,7 @@ def test_delete_word(authenticated_client, seeded_db, sample_words):
 - [ ] Helper functions are in separate module (not in routes)
 
 ### Tests to Write and Pass
+
 ```python
 # tests/test_stats.py
 def test_stats_page_loads(authenticated_client, seeded_db):
@@ -587,6 +651,7 @@ def test_group_words_by_month(app, seeded_db, sample_words):
 ```
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] All tests written and passing
 - [ ] Utility functions have unit tests independent of Flask
@@ -594,32 +659,40 @@ def test_group_words_by_month(app, seeded_db, sample_words):
 ---
 
 ## Sprint 7: CSV Export
+
 **Goal**: Allow downloading all word data as CSV
 
 ### Tasks
+
 1. In `app/routes.py`:
+   
    - `GET /export` - generate and return CSV file
 
 2. Create `app/export.py` (modular export logic):
+   
    - Function to generate CSV content from words
    - Handle proper CSV formatting
 
 3. CSV format:
+   
    - Headers: Word, Date Added, Added By, Category
    - One row per word
    - Sorted by date added (oldest first)
    - Filename: `emily_words_YYYY-MM-DD.csv`
 
 4. Add export buttons:
+   
    - On stats page (prominent)
    - On word list page
 
 5. Ensure proper CSV handling:
+   
    - Handle commas in words (proper quoting)
    - Handle special characters
    - UTF-8 encoding with BOM for Excel compatibility
 
 ### Deliverables
+
 - [ ] Export route returns CSV file download
 - [ ] CSV has correct headers
 - [ ] All words included in export
@@ -629,6 +702,7 @@ def test_group_words_by_month(app, seeded_db, sample_words):
 - [ ] Export buttons on stats and word list pages
 
 ### Tests to Write and Pass
+
 ```python
 # tests/test_export.py
 def test_export_returns_csv(authenticated_client, seeded_db, sample_words):
@@ -671,6 +745,7 @@ def test_export_handles_special_characters(authenticated_client, seeded_db):
 ```
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] All tests written and passing
 - [ ] Manual test: download and open in Excel/Sheets
@@ -678,28 +753,34 @@ def test_export_handles_special_characters(authenticated_client, seeded_db):
 ---
 
 ## Sprint 8: UI Polish
+
 **Goal**: Improve visual design and mobile experience
 
 ### Tasks
+
 1. Create modular CSS structure in `app/static/`:
+   
    - `style.css` - main stylesheet (imports others)
    - `layout.css` - grid, flexbox, responsive breakpoints
    - `components.css` - buttons, forms, cards, tables
    - `utilities.css` - spacing, colors, typography helpers
 
 2. Design system:
+   
    - Define color variables (CSS custom properties)
    - Define spacing scale
    - Define typography scale
    - Consistent border-radius, shadows
 
 3. Mobile-first responsive design:
+   
    - Base styles for mobile (375px)
    - Tablet breakpoint (~768px)
    - Desktop breakpoint (~1024px)
    - Touch targets minimum 44x44px
 
 4. Component styling:
+   
    - Forms: large inputs, clear labels, visible focus states
    - Buttons: distinct primary/secondary/danger styles
    - Cards: for word list on mobile
@@ -707,17 +788,20 @@ def test_export_handles_special_characters(authenticated_client, seeded_db):
    - Navigation: hamburger menu or simplified nav on mobile
 
 5. Dashboard improvements:
+   
    - Word entry form is visually prominent
    - Recent words preview (last 5 added)
    - Quick stats summary (total words, words this month)
 
 6. Flash message styling:
+   
    - Success: green theme
    - Error: red theme
    - Info: blue theme
    - Auto-dismiss or close button
 
 ### Deliverables
+
 - [ ] CSS is organized into modular files
 - [ ] Color and spacing variables defined
 - [ ] All pages look good at 375px width
@@ -727,6 +811,7 @@ def test_export_handles_special_characters(authenticated_client, seeded_db):
 - [ ] Dashboard shows recent words preview
 
 ### Tests to Write and Pass
+
 ```python
 # tests/test_ui.py
 def test_static_css_exists(client):
@@ -750,6 +835,7 @@ def test_responsive_viewport_meta(authenticated_client, seeded_db):
 ```
 
 ### Manual Testing Checklist (Required)
+
 - [ ] Test on iPhone Safari (or Chrome DevTools iPhone emulation)
 - [ ] Test on Android Chrome (or emulation)
 - [ ] All buttons easily tappable with thumb
@@ -758,6 +844,7 @@ def test_responsive_viewport_meta(authenticated_client, seeded_db):
 - [ ] No horizontal scrolling on any page
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] All tests written and passing
 - [ ] Manual testing checklist complete
@@ -765,31 +852,38 @@ def test_responsive_viewport_meta(authenticated_client, seeded_db):
 ---
 
 ## Sprint 9: Railway Deployment
+
 **Goal**: Deploy working application to Railway
 
 ### Tasks
+
 1. Create deployment files:
+   
    - `Procfile`: `web: gunicorn run:app`
    - `runtime.txt`: specify Python version (e.g., `python-3.11.x`)
    - `railway.json` (optional): Railway-specific config
 
 2. Update `config.py` for production:
+   
    - Handle Railway's DATABASE_URL format (may need `postgresql://` fix)
    - Secure session cookies in production
    - Debug = False in production
 
 3. Create database initialization strategy:
+   
    - Option A: Flask CLI command `flask init-db`
    - Option B: One-time `/init` route (protected, then removed)
    - Must seed users and categories
 
 4. GitHub repository setup:
+   
    - Initialize git repo
    - Verify .gitignore excludes: `.env`, `__pycache__`, `*.pyc`, `.pytest_cache`
    - Commit all code
    - Push to GitHub
 
 5. Railway setup:
+   
    - Create account (use GitHub OAuth)
    - Create new project → Deploy from GitHub repo
    - Add PostgreSQL database (click "New" → "Database" → "PostgreSQL")
@@ -798,15 +892,17 @@ def test_responsive_viewport_meta(authenticated_client, seeded_db):
      - `NICK_PASSWORD` (plaintext, app hashes it)
      - `WIFE_PASSWORD` (plaintext, app hashes it)
      - `BABY_BIRTHDATE` (format: YYYY-MM-DD)
-     - `WIFE_DISPLAY_NAME` (e.g., "Sarah")
+     - `WIFE_DISPLAY_NAME` (e.g., "Morgan")
    - Note: `DATABASE_URL` is automatically set by Railway
 
 6. Deploy and initialize:
+   
    - Push triggers auto-deploy
    - Run database initialization
    - Verify app works at Railway URL
 
 ### Deliverables
+
 - [ ] Procfile and deployment files created
 - [ ] Config handles production settings
 - [ ] Code pushed to GitHub (public repo)
@@ -818,6 +914,7 @@ def test_responsive_viewport_meta(authenticated_client, seeded_db):
 - [ ] Can log in and add words on live site
 
 ### Pre-Deployment Verification
+
 ```bash
 # Run locally with production-like settings
 export FLASK_ENV=production
@@ -833,6 +930,7 @@ grep -r "secret" . --include="*.py" | grep -v "environ"
 ```
 
 ### Post-Deployment Tests (Manual)
+
 - [ ] App loads at Railway URL
 - [ ] Login works for both users
 - [ ] Can add a word
@@ -843,6 +941,7 @@ grep -r "secret" . --include="*.py" | grep -v "environ"
 - [ ] Restart Railway service → data still present
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] Full test suite passes locally
 - [ ] Post-deployment manual tests pass
@@ -851,33 +950,41 @@ grep -r "secret" . --include="*.py" | grep -v "environ"
 ---
 
 ## Sprint 10: Charts (Enhancement)
+
 **Goal**: Add visual charts for word growth
 
 ### Tasks
+
 1. Add Chart.js via CDN in `base.html`:
+   
    - Load from CDN in scripts block
    - Only load on pages that need it
 
 2. Create `app/templates/partials/charts.html`:
+   
    - Modular chart components
    - Line chart: cumulative words over time
    - Bar chart: words added per month
 
 3. Create API endpoint for chart data:
+   
    - `GET /api/chart-data` - return JSON
    - Response: `{ monthly: [...], cumulative: [...] }`
 
 4. Update `app/templates/stats.html`:
+   
    - Include chart partial
    - Chart containers with appropriate sizing
    - Responsive chart sizing
 
 5. JavaScript for charts (in separate file or partial):
+   
    - Fetch data from API
    - Initialize Chart.js charts
    - Handle responsive resizing
 
 ### Deliverables
+
 - [ ] Chart.js loaded from CDN
 - [ ] API endpoint returns correct JSON data
 - [ ] Line chart shows cumulative growth
@@ -887,6 +994,7 @@ grep -r "secret" . --include="*.py" | grep -v "environ"
 - [ ] Chart code is modular/reusable
 
 ### Tests to Write and Pass
+
 ```python
 # tests/test_charts.py
 def test_chart_api_endpoint(authenticated_client, seeded_db, sample_words):
@@ -914,12 +1022,14 @@ def test_chart_data_accuracy(authenticated_client, seeded_db, sample_words):
 ```
 
 ### Manual Testing Checklist
+
 - [ ] Charts visible on stats page
 - [ ] Charts render on mobile without overflow
 - [ ] Data matches table data
 - [ ] Charts load within 2 seconds
 
 ### Definition of Done
+
 - [ ] All deliverables checked off
 - [ ] All tests written and passing
 - [ ] Manual testing checklist complete
@@ -929,11 +1039,13 @@ def test_chart_data_accuracy(authenticated_client, seeded_db, sample_words):
 ## General Guidelines for All Sprints
 
 ### Before Starting a Sprint
+
 1. Read the sprint requirements completely
 2. Review related sections in SPEC.md
 3. Understand the Definition of Done
 
 ### During a Sprint
+
 1. Write tests first or alongside code (TDD encouraged)
 2. Keep code modular - avoid large functions
 3. Use meaningful variable/function names
@@ -941,6 +1053,7 @@ def test_chart_data_accuracy(authenticated_client, seeded_db, sample_words):
 5. Commit frequently with clear messages
 
 ### Completing a Sprint
+
 1. Run `pytest -v` - all tests must pass
 2. Check all deliverables are complete
 3. Verify Definition of Done criteria
@@ -948,6 +1061,7 @@ def test_chart_data_accuracy(authenticated_client, seeded_db, sample_words):
 5. Commit with message: "Complete Sprint X: [Sprint Name]"
 
 ### Code Quality Standards
+
 - Max function length: ~50 lines
 - Max file length: ~300 lines (split if larger)
 - No hardcoded secrets
@@ -979,7 +1093,7 @@ SECRET_KEY=your-secret-key-here
 NICK_PASSWORD=plaintext-password-here
 WIFE_PASSWORD=plaintext-password-here
 BABY_BIRTHDATE=2024-01-15
-WIFE_DISPLAY_NAME=Sarah
+WIFE_DISPLAY_NAME=Morgan
 
 # Optional
 FLASK_ENV=development  # or 'production'
