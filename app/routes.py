@@ -1,11 +1,20 @@
 """Application routes."""
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from datetime import datetime
+
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app import db
+from app.milestones import get_all_milestones
 from app.models import Category, User, Word
-from app.utils import check_duplicate_word, check_duplicate_word_excluding
+from app.utils import (
+    calculate_age_months,
+    check_duplicate_word,
+    check_duplicate_word_excluding,
+    get_milestone_for_age,
+    get_monthly_stats,
+)
 
 main_bp = Blueprint("main", __name__)
 
@@ -56,6 +65,42 @@ def word_list():
         current_order=order,
         current_category=category_id,
         current_user_filter=user_id,
+    )
+
+
+@main_bp.route("/stats")
+@login_required
+def stats():
+    """Display statistics and developmental milestones."""
+    total_words = Word.query.count()
+
+    # Get baby's age from config
+    birthdate_str = current_app.config.get("BABY_BIRTHDATE")
+    age_months = None
+    current_milestone = None
+
+    if birthdate_str:
+        try:
+            birthdate = datetime.strptime(birthdate_str, "%Y-%m-%d").date()
+            age_months = calculate_age_months(birthdate)
+            current_milestone = get_milestone_for_age(age_months)
+        except ValueError:
+            # Invalid date format, skip age calculation
+            pass
+
+    # Get all milestones for display
+    milestones = get_all_milestones()
+
+    # Get monthly stats
+    monthly_stats = get_monthly_stats()
+
+    return render_template(
+        "stats.html",
+        total_words=total_words,
+        age_months=age_months,
+        current_milestone=current_milestone,
+        milestones=milestones,
+        monthly_stats=monthly_stats,
     )
 
 

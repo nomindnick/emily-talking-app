@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics - Emily Word Tracker{% endblock %}
+
+{% block head %}
+<style>
+    .stats-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .stat-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 24px;
+        text-align: center;
+    }
+
+    .stat-card h2 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .big-number {
+        font-size: 48px;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .age-display {
+        font-size: 32px;
+        font-weight: bold;
+        color: #28a745;
+    }
+
+    .section {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .section h2 {
+        margin: 0 0 16px 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .milestone-table,
+    .monthly-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .milestone-table th,
+    .milestone-table td,
+    .monthly-table th,
+    .monthly-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .milestone-table th,
+    .monthly-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        font-size: 14px;
+        color: #6c757d;
+    }
+
+    .milestone-table tr.current {
+        background: #d4edda;
+    }
+
+    .milestone-table tr.current td {
+        font-weight: 600;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-badge.on-track {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-badge.ahead {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .status-badge.below {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .comparison-text {
+        margin-top: 16px;
+        padding: 16px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .comparison-text .count {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .comparison-text .vs {
+        font-size: 14px;
+        color: #6c757d;
+        margin: 8px 0;
+    }
+
+    .comparison-text .expected {
+        font-size: 16px;
+        color: #333;
+    }
+
+    .no-data {
+        text-align: center;
+        color: #6c757d;
+        padding: 24px;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .stat-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .big-number {
+            font-size: 36px;
+        }
+
+        .age-display {
+            font-size: 24px;
+        }
+
+        .milestone-table th,
+        .milestone-table td,
+        .monthly-table th,
+        .monthly-table td {
+            padding: 8px;
+            font-size: 14px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stats-container">
+    <h1>Statistics</h1>
+
+    <!-- Summary Cards -->
+    <div class="stat-cards">
+        <div class="stat-card">
+            <h2>Total Words</h2>
+            <div class="big-number">{{ total_words }}</div>
+        </div>
+
+        {% if age_months is not none %}
+        <div class="stat-card">
+            <h2>Emily's Age</h2>
+            <div class="age-display">{{ age_months }} months</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Milestone Comparison -->
+    {% if age_months is not none and current_milestone %}
+    <div class="section">
+        <h2>Milestone Comparison</h2>
+        <div class="comparison-text">
+            <div class="count">{{ total_words }} words</div>
+            <div class="vs">vs. typical range for {{ current_milestone.label }}</div>
+            <div class="expected">
+                {{ current_milestone.min_words }}{% if current_milestone.max_words %}-{{ current_milestone.max_words }}{% else %}+{% endif %} words
+            </div>
+            {% if total_words >= current_milestone.min_words %}
+                {% if current_milestone.max_words and total_words > current_milestone.max_words %}
+                <span class="status-badge ahead">Ahead of milestone!</span>
+                {% else %}
+                <span class="status-badge on-track">On track!</span>
+                {% endif %}
+            {% else %}
+            <span class="status-badge below">Below expected range</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Developmental Milestones Table -->
+    <div class="section">
+        <h2>Developmental Milestones (CDC Guidelines)</h2>
+        <table class="milestone-table">
+            <thead>
+                <tr>
+                    <th>Age</th>
+                    <th>Typical Vocabulary</th>
+                    {% if age_months is not none %}
+                    <th>Status</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for milestone in milestones %}
+                <tr class="{% if current_milestone and milestone.age_months == current_milestone.age_months %}current{% endif %}">
+                    <td>{{ milestone.label }}</td>
+                    <td>{{ milestone.min_words }}{% if milestone.max_words %}-{{ milestone.max_words }}{% else %}+{% endif %} words</td>
+                    {% if age_months is not none %}
+                    <td>
+                        {% if age_months >= milestone.age_months %}
+                            {% if total_words >= milestone.min_words %}
+                            <span class="status-badge on-track">Reached</span>
+                            {% else %}
+                            <span class="status-badge below">Working on it</span>
+                            {% endif %}
+                        {% else %}
+                        <span style="color: #6c757d;">Upcoming</span>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Monthly Breakdown -->
+    <div class="section">
+        <h2>Words by Month</h2>
+        {% if monthly_stats %}
+        <table class="monthly-table">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Words Added</th>
+                    <th>Running Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in monthly_stats %}
+                <tr>
+                    <td>{{ stat.month_name }} {{ stat.year }}</td>
+                    <td>{{ stat.count }}</td>
+                    <td>{{ stat.running_total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-data">No words added yet. Start adding words to see monthly statistics!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
