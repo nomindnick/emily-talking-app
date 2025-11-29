@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Emily Word Tracker{% endblock %}
+
+{% block head %}
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .form-group select,
+    .form-group input {
+        padding: 12px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+
+    .form-group select:focus,
+    .form-group input:focus {
+        outline: 2px solid #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-login {
+        padding: 12px 24px;
+        font-size: 18px;
+        font-weight: bold;
+        color: white;
+        background-color: #007bff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        min-height: 44px;
+    }
+
+    .btn-login:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-login:active {
+        background-color: #004494;
+    }
+
+    .error-message {
+        color: #dc3545;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 16px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h1>Emily Word Tracker</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form class="login-form" method="POST" action="{{ url_for('main.login') }}">
+        <div class="form-group">
+            <label for="username">Who are you?</label>
+            <select name="username" id="username" required>
+                <option value="">Select user...</option>
+                {% for user in users %}
+                    <option value="{{ user.username }}">{{ user.display_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required
+                   placeholder="Enter your password">
+        </div>
+
+        <button type="submit" class="btn-login">Log In</button>
+    </form>
+</div>
+{% endblock %}

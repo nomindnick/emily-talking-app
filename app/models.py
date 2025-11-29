@@ -3,12 +3,13 @@
 from datetime import datetime, timezone
 
 import bcrypt
+from flask_login import UserMixin
 from sqlalchemy import func
 
 from app import db
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """User model for parent accounts."""
 
     __tablename__ = "users"

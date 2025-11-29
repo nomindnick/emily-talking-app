@@ -8,5 +8,6 @@ def test_app_exists(app):
 
 def test_app_runs(client):
     """App responds to requests."""
-    response = client.get("/")
+    # Root route is protected, so check login page instead
+    response = client.get("/login")
     assert response.status_code == 200

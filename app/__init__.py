@@ -25,6 +25,11 @@ def create_app(config_name="default"):
     # Initialize extensions
     db.init_app(app)
 
+    # Initialize Flask-Login
+    from app.auth import login_manager
+
+    login_manager.init_app(app)
+
     # Register routes
     from app.routes import main_bp
 
