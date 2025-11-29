@@ -20,3 +20,15 @@ def app():
 def client(app):
     """Create test client."""
     return app.test_client()
+
+
+@pytest.fixture
+def db_session(app):
+    """Provide a database session for testing.
+
+    This fixture ensures tests run within a transaction that gets
+    rolled back after each test for isolation.
+    """
+    with app.app_context():
+        yield db.session
+        db.session.rollback()
