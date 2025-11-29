@@ -96,6 +96,20 @@
     .btn-add-word:active {
         background-color: #1e7e34;
     }
+
+    .view-words-link {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        color: #007bff;
+        text-decoration: none;
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .view-words-link:hover {
+        text-decoration: underline;
+    }
 </style>
 {% endblock %}
 
@@ -133,4 +147,6 @@
         <button type="submit" class="btn-add-word">Add Word</button>
     </form>
 </div>
+
+<a href="{{ url_for('main.word_list') }}" class="view-words-link">View All Words</a>
 {% endblock %}

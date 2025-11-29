@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}Word List - Emily Word Tracker{% endblock %}
+
+{% block head %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 24px;
+    }
+
+    .word-count-badge {
+        background-color: #007bff;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+    }
+
+    /* Filter and Sort Controls */
+    .controls-section {
+        background-color: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .controls-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: flex-end;
+    }
+
+    .control-group {
+        flex: 1;
+        min-width: 140px;
+    }
+
+    .control-group label {
+        display: block;
+        font-size: 12px;
+        color: #6c757d;
+        margin-bottom: 4px;
+        font-weight: 500;
+    }
+
+    .control-select {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 14px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background-color: white;
+        min-height: 44px;
+        cursor: pointer;
+    }
+
+    .control-select:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .btn-apply {
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 500;
+        color: white;
+        background-color: #007bff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        min-height: 44px;
+    }
+
+    .btn-apply:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-clear {
+        padding: 10px 20px;
+        font-size: 14px;
+        color: #6c757d;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        cursor: pointer;
+        min-height: 44px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-clear:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Table styles (desktop) */
+    .word-table {
+        width: 100%;
+        border-collapse: collapse;
+        display: none;
+    }
+
+    .word-table th,
+    .word-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .word-table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        font-size: 14px;
+        color: #495057;
+    }
+
+    .word-table td {
+        font-size: 14px;
+    }
+
+    .word-table .word-text {
+        font-weight: 500;
+    }
+
+    .word-table tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .word-table .no-words {
+        text-align: center;
+        color: #6c757d;
+        padding: 40px;
+    }
+
+    /* Card styles (mobile) */
+    .word-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .word-card {
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 16px;
+    }
+
+    .word-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .word-card .word-text {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .word-card-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .word-card-details .detail {
+        background-color: #f8f9fa;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+
+    .word-card-details .category-badge {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .word-cards .no-words {
+        text-align: center;
+        color: #6c757d;
+        padding: 40px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    /* Edit button */
+    .btn-edit {
+        padding: 6px 12px;
+        font-size: 13px;
+        color: #007bff;
+        background-color: #e7f1ff;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-edit:hover {
+        background-color: #cce5ff;
+    }
+
+    /* Responsive: show table on desktop, cards on mobile */
+    @media (min-width: 768px) {
+        .word-table {
+            display: table;
+        }
+
+        .word-cards {
+            display: none;
+        }
+    }
+
+    /* Active filter indicator */
+    .active-filters {
+        margin-top: 12px;
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .active-filters .filter-tag {
+        display: inline-block;
+        background-color: #e9ecef;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin-right: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Word List</h1>
+    <span class="word-count-badge">{{ words|length }} word{% if words|length != 1 %}s{% endif %}</span>
+</div>
+
+<div class="controls-section">
+    <form method="GET" action="{{ url_for('main.word_list') }}">
+        <div class="controls-row">
+            <div class="control-group">
+                <label for="sort">Sort By</label>
+                <select id="sort" name="sort" class="control-select">
+                    <option value="date" {% if current_sort == 'date' %}selected{% endif %}>Date Added</option>
+                    <option value="word" {% if current_sort == 'word' %}selected{% endif %}>Word (A-Z)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="order">Order</label>
+                <select id="order" name="order" class="control-select">
+                    <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Newest First</option>
+                    <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Oldest First</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" class="control-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if current_category == category.id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="user">Added By</label>
+                <select id="user" name="user" class="control-select">
+                    <option value="">All Users</option>
+                    {% for user in users %}
+                    <option value="{{ user.id }}" {% if current_user_filter == user.id %}selected{% endif %}>{{ user.display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn-apply">Apply</button>
+            <a href="{{ url_for('main.word_list') }}" class="btn-clear">Clear</a>
+        </div>
+    </form>
+
+    {% if current_category or current_user_filter %}
+    <div class="active-filters">
+        Active filters:
+        {% if current_category %}
+        <span class="filter-tag">Category: {{ categories|selectattr('id', 'equalto', current_category)|map(attribute='name')|first }}</span>
+        {% endif %}
+        {% if current_user_filter %}
+        <span class="filter-tag">User: {{ users|selectattr('id', 'equalto', current_user_filter)|map(attribute='display_name')|first }}</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% include "partials/word_list.html" %}
+{% endblock %}

@@ -1,0 +1,52 @@
+{# Reusable word list component - displays words in table (desktop) or cards (mobile) #}
+
+{# Desktop table view #}
+<table class="word-table">
+    <thead>
+        <tr>
+            <th>Word</th>
+            <th>Date Added</th>
+            <th>Added By</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for word in words %}
+        <tr>
+            <td class="word-text">{{ word.word }}</td>
+            <td>{{ word.date_added.strftime('%b %d, %Y') }}</td>
+            <td>{{ word.user.display_name }}</td>
+            <td>{{ word.category.name if word.category else '—' }}</td>
+            <td>
+                <a href="{{ url_for('main.edit_word', word_id=word.id) }}" class="btn-edit">Edit</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5" class="no-words">No words found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{# Mobile card view #}
+<div class="word-cards">
+    {% for word in words %}
+    <div class="word-card">
+        <div class="word-card-header">
+            <span class="word-text">{{ word.word }}</span>
+            <a href="{{ url_for('main.edit_word', word_id=word.id) }}" class="btn-edit">Edit</a>
+        </div>
+        <div class="word-card-details">
+            <span class="detail">{{ word.date_added.strftime('%b %d, %Y') }}</span>
+            <span class="detail">{{ word.user.display_name }}</span>
+            {% if word.category %}
+            <span class="detail category-badge">{{ word.category.name }}</span>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="no-words">No words found.</div>
+    {% endfor %}
+</div>

@@ -31,6 +31,24 @@
             text-decoration: none;
         }
 
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
         .nav-user {
             display: flex;
             align-items: center;
@@ -96,6 +114,10 @@
     {% if current_user.is_authenticated %}
     <nav class="nav">
         <a href="{{ url_for('main.index') }}" class="nav-brand">Emily Word Tracker</a>
+        <div class="nav-links">
+            <a href="{{ url_for('main.index') }}" class="nav-link">Dashboard</a>
+            <a href="{{ url_for('main.word_list') }}" class="nav-link">Word List</a>
+        </div>
         <div class="nav-user">
             <span>{{ current_user.display_name }}</span>
             <a href="{{ url_for('main.logout') }}" class="btn-logout">Log Out</a>

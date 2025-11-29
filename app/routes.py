@@ -19,6 +19,46 @@ def index():
     return render_template("index.html", word_count=word_count, categories=categories)
 
 
+@main_bp.route("/words")
+@login_required
+def word_list():
+    """Display the word list with sorting and filtering."""
+    # Get query parameters
+    sort = request.args.get("sort", "date")
+    order = request.args.get("order", "desc")
+    category_id = request.args.get("category", type=int)
+    user_id = request.args.get("user", type=int)
+
+    # Build query with filters
+    query = Word.query
+
+    if category_id:
+        query = query.filter_by(category_id=category_id)
+    if user_id:
+        query = query.filter_by(user_id=user_id)
+
+    # Apply sorting
+    if sort == "word":
+        order_col = Word.word.asc() if order == "asc" else Word.word.desc()
+    else:  # date
+        order_col = Word.date_added.asc() if order == "asc" else Word.date_added.desc()
+
+    words = query.order_by(order_col).all()
+    categories = Category.query.all()
+    users = User.query.all()
+
+    return render_template(
+        "words.html",
+        words=words,
+        categories=categories,
+        users=users,
+        current_sort=sort,
+        current_order=order,
+        current_category=category_id,
+        current_user_filter=user_id,
+    )
+
+
 @main_bp.route("/words/add", methods=["POST"])
 @login_required
 def add_word():
@@ -53,6 +93,15 @@ def add_word():
 
     flash(f'Added "{word_text}" to Emily\'s vocabulary!', "success")
     return redirect(url_for("main.index"))
+
+
+@main_bp.route("/words/<int:word_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_word(word_id):
+    """Edit a word (placeholder for Sprint 5)."""
+    # This will be fully implemented in Sprint 5
+    flash("Edit functionality coming soon!", "info")
+    return redirect(url_for("main.word_list"))
 
 
 @main_bp.route("/login", methods=["GET", "POST"])

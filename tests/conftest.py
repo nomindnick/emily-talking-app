@@ -1,9 +1,11 @@
 """Pytest configuration and fixtures."""
 
+from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from app import create_app, db
-from app.models import User
+from app.models import Category, User, Word
 
 
 @pytest.fixture
@@ -68,3 +70,51 @@ def authenticated_client(app, seeded_db):
             "password": "testpass"
         }, follow_redirects=True)
         yield client
+
+
+@pytest.fixture
+def sample_words(authenticated_client, seeded_db):
+    """Create sample words for testing word list functionality.
+
+    Creates words with different dates, users, and categories for testing
+    sorting and filtering. Uses authenticated_client to ensure proper context.
+    """
+    # Get the users
+    nick = User.query.filter_by(username="nick").first()
+    wife = User.query.filter_by(username="wife").first()
+
+    # Create categories
+    noun = Category(name="Noun", description="Things")
+    verb = Category(name="Verb", description="Actions")
+    db.session.add(noun)
+    db.session.add(verb)
+    db.session.commit()
+
+    # Create words with different dates, users, and categories
+    now = datetime.now(timezone.utc)
+    words_data = [
+        {"word": "apple", "user": nick, "category": noun, "days_ago": 10},
+        {"word": "banana", "user": wife, "category": noun, "days_ago": 5},
+        {"word": "cat", "user": nick, "category": None, "days_ago": 3},
+        {"word": "dog", "user": wife, "category": noun, "days_ago": 1},
+        {"word": "eat", "user": nick, "category": verb, "days_ago": 7},
+    ]
+
+    words = []
+    for data in words_data:
+        word = Word(
+            word=data["word"],
+            user_id=data["user"].id,
+            category_id=data["category"].id if data["category"] else None,
+            date_added=now - timedelta(days=data["days_ago"]),
+        )
+        db.session.add(word)
+        words.append(word)
+
+    db.session.commit()
+
+    # Refresh to load relationships
+    for word in words:
+        db.session.refresh(word)
+
+    return words
