@@ -5,7 +5,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 
 from app import db
 from app.models import Category, User, Word
-from app.utils import check_duplicate_word
+from app.utils import check_duplicate_word, check_duplicate_word_excluding
 
 main_bp = Blueprint("main", __name__)
 
@@ -98,9 +98,53 @@ def add_word():
 @main_bp.route("/words/<int:word_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_word(word_id):
-    """Edit a word (placeholder for Sprint 5)."""
-    # This will be fully implemented in Sprint 5
-    flash("Edit functionality coming soon!", "info")
+    """Edit a word."""
+    word = Word.query.get_or_404(word_id)
+    categories = Category.query.all()
+
+    if request.method == "POST":
+        word_text = request.form.get("word", "").strip()
+
+        if not word_text:
+            flash("Please enter a word.", "error")
+            return render_template("edit_word.html", word=word, categories=categories)
+
+        # Check for duplicates (excluding current word)
+        existing = check_duplicate_word_excluding(word_text, word_id)
+        if existing:
+            flash(f'"{existing.word}" already exists.', "error")
+            return render_template("edit_word.html", word=word, categories=categories)
+
+        # Get optional category
+        category_id = request.form.get("category_id")
+        if category_id:
+            category_id = int(category_id)
+        else:
+            category_id = None
+
+        # Update the word
+        word.word = word_text
+        word.category_id = category_id
+        db.session.commit()
+
+        flash(f'Updated "{word_text}" successfully!', "success")
+        return redirect(url_for("main.word_list"))
+
+    # GET request - display edit form
+    return render_template("edit_word.html", word=word, categories=categories)
+
+
+@main_bp.route("/words/<int:word_id>/delete", methods=["POST"])
+@login_required
+def delete_word(word_id):
+    """Delete a word."""
+    word = Word.query.get_or_404(word_id)
+    word_text = word.word
+
+    db.session.delete(word)
+    db.session.commit()
+
+    flash(f'Deleted "{word_text}" from vocabulary.', "success")
     return redirect(url_for("main.word_list"))
 
 
