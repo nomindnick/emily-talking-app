@@ -2,10 +2,11 @@
 
 from datetime import datetime
 
-from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, make_response, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app import db
+from app.export import generate_csv_content, get_export_filename
 from app.milestones import get_all_milestones
 from app.models import Category, User, Word
 from app.utils import (
@@ -102,6 +103,21 @@ def stats():
         milestones=milestones,
         monthly_stats=monthly_stats,
     )
+
+
+@main_bp.route("/export")
+@login_required
+def export_csv():
+    """Export all words as CSV file."""
+    # Get all words sorted by date (oldest first)
+    words = Word.query.order_by(Word.date_added.asc()).all()
+
+    csv_content = generate_csv_content(words)
+
+    response = make_response(csv_content)
+    response.headers["Content-Disposition"] = f"attachment; filename={get_export_filename()}"
+    response.headers["Content-Type"] = "text/csv; charset=utf-8"
+    return response
 
 
 @main_bp.route("/words/add", methods=["POST"])

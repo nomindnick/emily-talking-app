@@ -181,6 +181,14 @@
         {% endif %}
     </div>
 
+    <!-- Export Button -->
+    <div class="section" style="text-align: center;">
+        <a href="{{ url_for('main.export_csv') }}" class="btn btn-primary" style="display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; min-height: 44px; line-height: 20px;">
+            Download All Words (CSV)
+        </a>
+        <p style="margin-top: 12px; color: #6c757d; font-size: 14px;">Export all words for backup or sharing with pediatrician</p>
+    </div>
+
     <!-- Milestone Comparison -->
     {% if age_months is not none and current_milestone %}
     <div class="section">
