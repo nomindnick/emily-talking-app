@@ -3,7 +3,9 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
-from app.models import User
+from app import db
+from app.models import Category, User, Word
+from app.utils import check_duplicate_word
 
 main_bp = Blueprint("main", __name__)
 
@@ -12,7 +14,45 @@ main_bp = Blueprint("main", __name__)
 @login_required
 def index():
     """Display the main dashboard."""
-    return render_template("base.html")
+    word_count = Word.query.count()
+    categories = Category.query.all()
+    return render_template("index.html", word_count=word_count, categories=categories)
+
+
+@main_bp.route("/words/add", methods=["POST"])
+@login_required
+def add_word():
+    """Handle adding a new word."""
+    word_text = request.form.get("word", "").strip()
+
+    if not word_text:
+        flash("Please enter a word.", "error")
+        return redirect(url_for("main.index"))
+
+    # Check for duplicates (case-insensitive)
+    existing = check_duplicate_word(word_text)
+    if existing:
+        flash(f'"{existing.word}" has already been added.', "error")
+        return redirect(url_for("main.index"))
+
+    # Get optional category
+    category_id = request.form.get("category_id")
+    if category_id:
+        category_id = int(category_id)
+    else:
+        category_id = None
+
+    # Create the new word
+    word = Word(
+        word=word_text,
+        user_id=current_user.id,
+        category_id=category_id
+    )
+    db.session.add(word)
+    db.session.commit()
+
+    flash(f'Added "{word_text}" to Emily\'s vocabulary!', "success")
+    return redirect(url_for("main.index"))
 
 
 @main_bp.route("/login", methods=["GET", "POST"])

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Emily Word Tracker{% endblock %}
+
+{% block head %}
+<style>
+    .word-count-display {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .word-count-number {
+        font-size: 48px;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .word-count-label {
+        color: #6c757d;
+        font-size: 16px;
+    }
+
+    .word-entry-section {
+        background-color: white;
+        padding: 24px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .word-entry-section h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 18px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        min-height: 50px;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 16px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        background-color: white;
+        min-height: 50px;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .btn-add-word {
+        width: 100%;
+        padding: 16px;
+        font-size: 18px;
+        font-weight: 600;
+        color: white;
+        background-color: #28a745;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        min-height: 54px;
+    }
+
+    .btn-add-word:hover {
+        background-color: #218838;
+    }
+
+    .btn-add-word:active {
+        background-color: #1e7e34;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="word-count-display">
+    <div class="word-count-number">{{ word_count }}</div>
+    <div class="word-count-label">word{% if word_count != 1 %}s{% endif %} in Emily's vocabulary</div>
+</div>
+
+<div class="word-entry-section">
+    <h2>Add a New Word</h2>
+    <form action="{{ url_for('main.add_word') }}" method="POST">
+        <div class="form-group">
+            <label for="word">What did Emily say?</label>
+            <input type="text"
+                   id="word"
+                   name="word"
+                   class="form-input"
+                   placeholder="Enter the word..."
+                   autocomplete="off"
+                   autocapitalize="none"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label for="category_id">Category (optional)</label>
+            <select id="category_id" name="category_id" class="form-select">
+                <option value="">-- No category --</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn-add-word">Add Word</button>
+    </form>
+</div>
+{% endblock %}
