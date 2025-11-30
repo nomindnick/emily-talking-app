@@ -35,4 +35,15 @@ def create_app(config_name="default"):
 
     app.register_blueprint(main_bp)
 
+    # Auto-initialize database (idempotent - safe for Railway restarts)
+    # Skip in testing mode - tests manage their own database state
+    if not app.config.get("TESTING"):
+        with app.app_context():
+            db.create_all()
+            # Seed users and categories if they don't exist
+            from app.init_db import seed_categories, seed_users
+
+            seed_users()
+            seed_categories()
+
     return app

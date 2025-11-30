@@ -46,6 +46,7 @@ htmlcov/
 # Database
 *.db
 *.sqlite3
+instance/
 
 # OS
 .DS_Store
