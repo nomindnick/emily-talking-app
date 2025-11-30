@@ -36,23 +36,21 @@ class ProductionConfig(Config):
     SESSION_COOKIE_SAMESITE = "Lax"
 
     def __init__(self):
-        """Validate required production settings."""
+        """Validate required production settings and set database URI."""
         super().__init__()
+        # Set database URI, handling Railway's postgres:// format
+        uri = os.environ.get("DATABASE_URL")
+        if uri and uri.startswith("postgres://"):
+            # Railway uses postgres:// but SQLAlchemy requires postgresql://
+            uri = uri.replace("postgres://", "postgresql://", 1)
+        self.SQLALCHEMY_DATABASE_URI = uri
+
         # Ensure SECRET_KEY is set in production
         if self.SECRET_KEY == "dev-secret-key-change-in-production":
             raise ValueError(
                 "SECRET_KEY must be set in production. "
                 "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
             )
-
-    @property
-    def SQLALCHEMY_DATABASE_URI(self):
-        """Get database URI, handling Railway's postgres:// format."""
-        uri = os.environ.get("DATABASE_URL")
-        if uri and uri.startswith("postgres://"):
-            # Railway uses postgres:// but SQLAlchemy requires postgresql://
-            uri = uri.replace("postgres://", "postgresql://", 1)
-        return uri
 
 
 class TestingConfig(Config):

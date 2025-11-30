@@ -19,8 +19,9 @@ def create_app(config_name="default"):
     """
     app = Flask(__name__)
 
-    # Load configuration
-    app.config.from_object(config[config_name])
+    # Load configuration (instantiate to trigger __init__ for production validation)
+    config_class = config[config_name]
+    app.config.from_object(config_class())
 
     # Initialize extensions
     db.init_app(app)
