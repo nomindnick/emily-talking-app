@@ -1,11 +1,13 @@
 """Flask application factory."""
 
 from flask import Flask
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from config import config
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 
 def create_app(config_name="default"):
@@ -25,6 +27,7 @@ def create_app(config_name="default"):
 
     # Initialize extensions
     db.init_app(app)
+    migrate.init_app(app, db)
 
     # Initialize Flask-Login
     from app.auth import login_manager
